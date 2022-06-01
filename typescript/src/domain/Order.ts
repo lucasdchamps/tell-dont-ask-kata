@@ -3,7 +3,7 @@ import { OrderStatus } from './OrderStatus';
 import ApprovedOrderCannotBeRejectedException from '../useCase/ApprovedOrderCannotBeRejectedException';
 import RejectedOrderCannotBeApprovedException from '../useCase/RejectedOrderCannotBeApprovedException';
 import ShippedOrdersCannotBeChangedException from '../useCase/ShippedOrdersCannotBeChangedException';
-import Product from "./Product";
+import Product from './Product';
 
 class Order {
   private total: number;
@@ -48,10 +48,14 @@ class Order {
     orderItem.setQuantity(quantity);
     orderItem.setTax(taxAmount);
     orderItem.setTaxedAmount(taxedAmount);
+    this.addOrderItem(orderItem);
+  }
+
+  private addOrderItem(orderItem: OrderItem) {
     this.items.push(orderItem);
 
-    this.setTotal(this.total + taxedAmount);
-    this.setTax(this.tax + taxAmount);
+    this.setTotal(this.total + orderItem.getTaxedAmount());
+    this.setTax(this.tax + orderItem.getTax());
   }
 
   public getTotal(): number {
