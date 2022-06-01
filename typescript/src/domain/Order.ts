@@ -3,6 +3,8 @@ import { OrderStatus } from './OrderStatus';
 import ApprovedOrderCannotBeRejectedException from '../useCase/ApprovedOrderCannotBeRejectedException';
 import RejectedOrderCannotBeApprovedException from '../useCase/RejectedOrderCannotBeApprovedException';
 import ShippedOrdersCannotBeChangedException from '../useCase/ShippedOrdersCannotBeChangedException';
+import Product from "./Product";
+
 class Order {
   private total: number;
   private currency: string;
@@ -10,6 +12,14 @@ class Order {
   private tax: number;
   private status: OrderStatus;
   private id: number;
+
+  public constructor() {
+    this.setStatus(OrderStatus.CREATED);
+    this.setItems([]);
+    this.setCurrency('EUR');
+    this.setTotal(0);
+    this.setTax(0);
+  }
 
   public approve(isApproved: boolean): void {
     if (this.status === OrderStatus.SHIPPED) {
@@ -25,6 +35,23 @@ class Order {
     }
 
     this.setStatus(isApproved ? OrderStatus.APPROVED : OrderStatus.REJECTED);
+  }
+
+  public addProduct(product: Product, quantity: number) {
+    const unitaryTax: number = Math.round(product.getPrice() / 100 * product.getCategory().getTaxPercentage() * 100) / 100;
+    const unitaryTaxedAmount: number = Math.round((product.getPrice() + unitaryTax) * 100) / 100;
+    const taxedAmount: number = Math.round(unitaryTaxedAmount * quantity * 100) / 100;
+    const taxAmount: number = unitaryTax * quantity;
+
+    const orderItem: OrderItem = new OrderItem();
+    orderItem.setProduct(product);
+    orderItem.setQuantity(quantity);
+    orderItem.setTax(taxAmount);
+    orderItem.setTaxedAmount(taxedAmount);
+    this.items.push(orderItem);
+
+    this.setTotal(this.total + taxedAmount);
+    this.setTax(this.tax + taxAmount);
   }
 
   public getTotal(): number {
