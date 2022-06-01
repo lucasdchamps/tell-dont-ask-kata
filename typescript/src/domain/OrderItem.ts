@@ -6,6 +6,15 @@ class OrderItem {
   private taxedAmount: number;
   private tax: number;
 
+  public constructor(product: Product, quantity: number) {
+    this.product = product;
+    this.quantity = quantity;
+    const unitaryTax: number = Math.round(product.getPrice() / 100 * product.getCategory().getTaxPercentage() * 100) / 100;
+    const unitaryTaxedAmount: number = Math.round((product.getPrice() + unitaryTax) * 100) / 100;
+    this.taxedAmount = Math.round(unitaryTaxedAmount * quantity * 100) / 100;
+    this.tax = unitaryTax * quantity;
+  }
+
   public getProduct(): Product {
     return this.product;
   }
